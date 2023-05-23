@@ -40,7 +40,7 @@ export default function Header() {
 	}
 
 	return (
-		<header className="container fixed top-0 bg-gradient-to-r from-purple-800 to-pink-600">
+		<header className="container fixed top-0 bg-gradient-to-r z-50 from-purple-800 to-pink-600">
 			<nav
 				className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
 				aria-label="Global"
@@ -71,13 +71,13 @@ export default function Header() {
 					<a href="#" className="text-sm font-semibold leading-6 text-white">
 						MARKETPLACE
 					</a>
-					<Link href="/" className="text-sm font-semibold leading-6 text-white">
+					<Link href="/wallet" className="text-sm font-semibold leading-6 text-white">
 						WALLET
 					</Link>
 					<a href="#" className="text-sm font-semibold leading-6 text-white">
 						MESSAGES
 					</a>
-					<Link href="transaction" className="text-sm font-semibold leading-6 text-white">
+					<Link href="/transaction" className="text-sm font-semibold leading-6 text-white">
 						TRANSACTIONS
 					</Link>
 					<a href="#" className="text-sm font-semibold leading-6 text-white">
