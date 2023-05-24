@@ -34,17 +34,17 @@ export default function Home() {
 					<CreditCard />
 				</div>
 				<div className="p-4 h-60 w-fit">
-				<Link href="/wallet/add-new-card" className='w-fit h-fit '>
-					<div className="h-full w-full p-4 rounded-xl border-dashed border-2 border-black border-dashed font-bold text-lg w-80 flex flex-col place-content-center place-items-center ">
-						<Image
-							className="m-0"
-							src="https://market-kanoo-dev.kardsys.com/assets/images/wallet/add-card.png"
-							width={68}
-							height={68}
-							alt="Picture of the author"
-						/>
-						<div>Add New Card</div>
-					</div>
+					<Link href="/wallet/add-new-card" className="w-fit h-fit ">
+						<div className="h-full p-4 rounded-xl border-dashed border-2 border-black border-dashed font-bold text-lg w-80 flex flex-col place-content-center place-items-center ">
+							<Image
+								className="m-0"
+								src="https://market-kanoo-dev.kardsys.com/assets/images/wallet/add-card.png"
+								width={68}
+								height={68}
+								alt="Picture of the author"
+							/>
+							<div>Add New Card</div>
+						</div>
 					</Link>
 				</div>
 			</div>
