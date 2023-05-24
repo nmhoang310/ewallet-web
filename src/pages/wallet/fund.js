@@ -1,19 +1,30 @@
-import React from 'react';
+import { React, useState } from 'react';
 import Link from 'next/link';
 import { Inter } from 'next/font/google';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 
+
 import Card from '@/components/Card';
 import ButtonLogin from '@/components/ButtonLogin';
 import CreditCard from '@/components/CreditCard';
+import SuccessDialog from '@/components/SuccessDialog';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function fund() {
+export default function Fund() {
     const focusFunc = () => {
         inputRef.placeholder = 'test';
     };
+	
+	let [isOpen, setIsOpen] = useState(false);
 
+	function closeModal() {
+		setIsOpen(false);
+	}
+
+	function openModal() {
+		setIsOpen(true);
+	}
 
 	return (
 		<main
@@ -59,9 +70,11 @@ export default function fund() {
 					<CreditCard />
 				</div>
 				<div className="flex self-center w-52 py-4">
-					<ButtonLogin name="Load" color_500="#3B82F6" color_600="#2563EB" color_700="#1D4ED8" />
+					<ButtonLogin func={() => openModal()} name="Load" color_500="#A855F7" color_600="#9333EA" color_700="#7E22CE" />
 				</div>
 			</div>
+
+			<SuccessDialog message="Payment" isOpen={isOpen} closeModal={closeModal}/>
 		</main>
 	);
 }
