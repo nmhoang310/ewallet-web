@@ -25,13 +25,27 @@ export default function Home() {
 	}
 
 	return (
-		<main className={`container mx-auto min-h-screen flex flex-row py-28 px-36 ${inter.className}`}>
-			<div className="z-2 max-w-5xl font-mono text-sm lg:flex">
-				<Link className='p-4 w-fit h-64' href="/wallet/details">
+		<main className={`container mx-auto min-h-screen py-28 px-36 ${inter.className}`}>
+			<div className="z-2 w-full px-15 font-mono text-sm grid grid-cols-3 gap-3 flex space-x-4">
+				<Link className="p-4 w-fit h-60" href="/wallet/details">
 					<Card />
 				</Link>
-				<div className='p-4 w-fit h-64'>
+				<div className="p-4 w-fit h-60">
 					<CreditCard />
+				</div>
+				<div className="p-4 h-60 w-fit">
+				<Link href="/wallet/add-new-card" className='w-fit h-fit '>
+					<div className="h-full w-full p-4 rounded-xl border-dashed border-2 border-black border-dashed font-bold text-lg w-80 flex flex-col place-content-center place-items-center ">
+						<Image
+							className="m-0"
+							src="https://market-kanoo-dev.kardsys.com/assets/images/wallet/add-card.png"
+							width={68}
+							height={68}
+							alt="Picture of the author"
+						/>
+						<div>Add New Card</div>
+					</div>
+					</Link>
 				</div>
 			</div>
 		</main>
