@@ -1,5 +1,6 @@
 import { React, Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import Image from 'next/image';
 
 export default function SuccessDialog(props) {
 	return (
@@ -31,6 +32,12 @@ export default function SuccessDialog(props) {
 							>
 								<Dialog.Panel className="flex flex-col place-items-center w-fit max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
 									<img className="h-16 w-16 mb-4" src="/check.png" alt="" />
+									{/* <Image
+										src="/check.png"
+										width={16}
+										height={16}
+										alt="Picture of the author"
+									/> */}
 									<Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
 										{props.message} successful
 									</Dialog.Title>

@@ -1,4 +1,6 @@
 import { React, useState } from 'react';
+import Image from 'next/image';
+import { useForm } from 'react-hook-form';
 
 import { Inter } from 'next/font/google';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
@@ -10,7 +12,67 @@ import SuccessDialog from '@/components/SuccessDialog';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function AddNewCard() {
+	let [cardNumber, setCardNumber] = useState('');
+	const [card, setCard] = useState({
+		firstName: null,
+		lastName: null,
+		cardNumber: null,
+		expDate: null,
+		cvv: null,
+		cardName: null,
+		billingAddr: null,
+		zipCode: null
+	});
+	const {
+		register,
+		handleSubmit,
+		getValues,
+		setValue,
+		formState: { errors },
+	} = useForm({
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		// defaultValues: {cardNumber},
+		resolver: undefined,
+		context: undefined,
+		criteriaMode: 'firstError',
+		shouldFocusError: true,
+		shouldUnregister: false,
+		shouldUseNativeValidation: false,
+		delayError: undefined,
+	});
+
+	const onSubmit = (data) => {
+		setCard({
+			...card,
+			cardNumber: data.cardNumber.replace(/\D/g, ''),
+			expDate: data.expDate,
+			cvv: data.cvv,
+			cardName: data.cardName,
+			billingAddr: data.street + ", " + data.state + ", " + data.city ,
+			zipCode: data.zip,
+		});
+		console.log(data)
+		console.log(card)
+		openModal();
+	};
+
 	let [isOpen, setIsOpen] = useState(false);
+
+	const formatCardNumber = (event) => {
+		let input = event.target.value;
+		// Remove any existing spaces from the input
+		const sanitizedInput = input.replace(/\s/g, '');
+
+		// Use regular expressions to separate the string into groups of four digits
+		const separatedNumbers = sanitizedInput.replace(/(\d{4})/g, '$1 ');
+
+		// Trim any trailing whitespace
+		const result = separatedNumbers.trim();
+
+		setValue('cardNumber', result.slice(0, 19));
+		setCardNumber(result.slice(0, 19));
+	};
 
 	function closeModal() {
 		setIsOpen(false);
@@ -36,8 +98,8 @@ export default function AddNewCard() {
 					{/* Credit Card Information */}
 					<div>
 						<h5 className="text-violet-700 font-bold mb-3">Credit Card Information</h5>
-						<form className="w-full max-w-lg">
-							<div className="flex flex-wrap -mx-3 mb-4">
+						<form className="w-full max-w-lg" onSubmit={handleSubmit(onSubmit)}>
+							{/* <div className="flex flex-wrap -mx-3 mb-4">
 								<div className="w-full md:w-1/2 px-3 mb-4 md:mb-0">
 									<label
 										className="block tracking-wide text-gray-700 font-bold mb-2"
@@ -46,7 +108,7 @@ export default function AddNewCard() {
 										First Name
 									</label>
 									<input
-										className="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-300  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
 										id="grid-firstName"
 										type="text"
 										placeholder="First Name"
@@ -60,14 +122,14 @@ export default function AddNewCard() {
 										Last Name
 									</label>
 									<input
-										className="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-300 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 										id="grid-lastName"
 										type="text"
 										placeholder="Last Name"
 									/>
 								</div>
-							</div>
-							<div className="flex flex-wrap -mx-3 mb-4">
+							</div> */}
+							<div className="relative flex flex-wrap -mx-3 mb-4">
 								<div className="w-full px-3">
 									<label
 										className="block tracking-wide text-gray-700  font-bold mb-2"
@@ -76,14 +138,51 @@ export default function AddNewCard() {
 										Card Number
 									</label>
 									<input
-										className="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-300 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 										id="cardNumber"
+										name="cardNumber"
 										type="text"
 										placeholder="Enter Card Number"
+										max={19}
+										{...register('cardNumber', {
+											required: true,
+											onChange: (value) => formatCardNumber(value),
+											validate: {
+												matchPattern: (value) => /^-?\d+(\s+\d+)*$/.test(value),
+												checkLength: (value) => value.length >= 19,
+											},
+										})}
 									/>
+									{errors.cardNumber?.type === 'required' && (
+										<p className="text-red-500 text-sm italic">Card number is required!</p>
+									)}
+									{errors.cardNumber?.type === 'matchPattern' && (
+										<p className="text-red-500 text-sm italic">Card number is not valid!</p>
+									)}
+									{errors.cardNumber?.type === 'checkLength' && (
+										<p className="text-red-500 text-sm italic">Card number must be 16 digits!</p>
+									)}
+									{cardNumber.charAt(0) === '4' ? (
+										<Image
+											className="pointer-events-none absolute top-1/2 transform -translate-y-1/4 bottom-0 right-5"
+											src="/visa.png"
+											width={31}
+											height={31}
+											alt="Picture of the author"
+										/>
+									) : null}
+									{cardNumber.charAt(0) === '2' || cardNumber.charAt(0) === '5' ? (
+										<Image
+											className="pointer-events-none absolute top-1/2 transform -translate-y-1/4 bottom-0 right-5"
+											src="/master-card.png"
+											width={42}
+											height={42}
+											alt="Picture of the author"
+										/>
+									) : null}
 								</div>
 							</div>
-							<div className="flex flex-wrap -mx-3">
+							<div className="flex flex-wrap -mx-3 mb-4">
 								<div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
 									<label
 										className="block tracking-wide text-gray-700 font-bold mb-2"
@@ -92,13 +191,26 @@ export default function AddNewCard() {
 										Expiration Date
 									</label>
 									<input
-										className="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-300  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500  rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
 										id="grid-expDate"
-										type="text"
-										placeholder="MM/YY"
+										name="expDate"
+										type="month"
+										min={
+											new Date().getFullYear() +
+											'-' +
+											(new Date().getMonth() + 1).toString().padStart(2, '0')
+										}
+										pattern="[0-9]{4}-[0-9]{2}"
+										placeholder="MM/YYYY"
+										{...register('expDate', {
+											required: true,
+										})}
 									/>
+									{errors.expDate?.type === 'required' && (
+										<p className="text-red-500 text-sm italic">Expiration Date is required!</p>
+									)}
 								</div>
-								<div className="w-full md:w-1/2 px-3">
+								<div className="w-full md:w-1/2 px-3 relative">
 									<label
 										className="block tracking-wide text-gray-700 font-bold mb-2"
 										htmlFor="grid-securityCode"
@@ -106,97 +218,135 @@ export default function AddNewCard() {
 										Security Code
 									</label>
 									<input
-										className="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-300 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 										id="grid-securityCode"
 										type="text"
 										placeholder="3-digit CVV"
+										{...register('cvv', {
+											required: true,
+											onChange: (value) => {
+												setValue('cvv', value.target.value.slice(0, 3));
+											},
+											validate: {
+												matchPattern: (value) => /^\d+$/.test(value),
+												checkLength: (value) => value.length >= 3,
+											},
+										})}
+									/>
+									{errors.cvv?.type === 'required' && (
+										<p className="text-red-500 text-sm italic">CVV number is required!</p>
+									)}
+									{errors.cvv?.type === 'matchPattern' && (
+										<p className="text-red-500 text-sm italic">CVV is not valid!</p>
+									)}
+									{errors.cvv?.type === 'checkLength' && (
+										<p className="text-red-500 text-sm italic">The CVV number is 3 digits!</p>
+									)}
+									<Image
+										className="pointer-events-none absolute top-1/2 transform -translate-y-1/4 bottom-0 right-5"
+										src="/cvv.png"
+										width={31}
+										height={31}
+										alt="Picture of the author"
 									/>
 								</div>
 							</div>
 
-							{/* <div className="flex flex-wrap -mx-3 mb-6">
+							<div className="flex flex-wrap -mx-3">
 								<div className="w-full px-3">
 									<label
-										className="block tracking-wide text-gray-700 text-xs font-bold mb-2"
-										htmlFor="cardNumber"
+										className="block tracking-wide text-gray-700 font-bold mb-2"
+										htmlFor="cardName"
 									>
 										Name on Card
 									</label>
 									<input
-										className="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-300 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-										id="cardNumber"
-										type="password"
-										placeholder="Enter Card Number"
+										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+										id="cardName"
+										name="cardName"
+										type="text"
+										placeholder="Enter Name on Card"
+										{...register('cardName', {
+											required: true,
+											onChange: (value) => {
+												setValue('cardName', value.target.value.toUpperCase());
+											},
+										})}
 									/>
+									{errors.cardName?.type === 'required' && (
+										<p className="text-red-500 text-sm italic">Name is required!</p>
+									)}
 								</div>
-							</div> */}
+							</div>
 							<div className="inline-flex items-center justify-center w-full">
 								<hr className="w-full h-px mb-6 bg-gray-500 border-0" />
 							</div>
 							<div className="flex flex-col w-full">
 								<div className="text-violet-700 font-bold mb-3">Billing Address</div>
-								<div className="flex flex-wrap -mx-3 mb-4">
+								<div className="flex flex-wrap -mx-3">
 									<div className="w-full px-3">
 										<label
 											className="block tracking-wide text-gray-700 font-bold mb-2"
-											htmlFor="cardNumber"
+											htmlFor="street"
 										>
 											Street Address
 										</label>
 										<input
-											className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-											id="cardNumber"
+											className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+											id="street"
+											name='street'
 											type="text"
-											placeholder="Street Address"
+											// placeholder="Street Address"
+											defaultValue="1 Main St"
+											{...register('street', {
+												required: true,
+											})}
 										/>
+										{errors.street?.type === 'required' && (
+											<p className="text-red-500 text-sm italic">Street is required!</p>
+										)}
 									</div>
 								</div>
-								<div className="flex flex-wrap -mx-3 mb-4">
+								<div className="flex flex-wrap -mx-3">
 									<div className="w-full px-3">
 										<label
 											className="block tracking-wide text-gray-700 font-bold mb-2"
-											htmlFor="cardNumber"
-										>
-											Apt., ste., bldg.
-										</label>
-										<input
-											className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-											id="cardNumber"
-											type="text"
-											placeholder="Apt., ste., bldg."
-										/>
-									</div>
-								</div>
-								<div className="flex flex-wrap -mx-3 mb-4">
-									<div className="w-full px-3">
-										<label
-											className="block tracking-wide text-gray-700 font-bold mb-2"
-											htmlFor="cardNumber"
+											htmlFor="city"
 										>
 											City
 										</label>
 										<input
-											className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-											id="cardNumber"
+											className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+											id="city"
+											name='city'
 											type="text"
-											placeholder="City"
+											// placeholder="City"
+											defaultValue="San Jose"
+											{...register('city', {
+												required: true,
+											})}
 										/>
+										{errors.city?.type === 'required' && (
+											<p className="text-red-500 text-sm italic">City is required!</p>
+										)}
 									</div>
 								</div>
 								<div className="flex flex-wrap mb-2 w-full">
 									<div className="w-full md:w-1/2 pr-3 mb-6 md:mb-0">
 										<label
 											className="block tracking-wide text-gray-700 font-bold mb-2"
-											htmlFor="grid-state"
+											htmlFor="state"
 										>
 											State
 										</label>
 										<div className="relative">
 											<select
-												className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-												id="grid-state"
+												className="block appearance-none w-full bg-white border border-gray-500 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+												id="state"
+												name='state'
+												{...register('state')}
 											>
-												<option>New Mexico</option>
+												<option>California</option>
 												<option>Missouri</option>
 												<option>Texas</option>
 											</select>
@@ -214,32 +364,40 @@ export default function AddNewCard() {
 									<div className="w-full md:w-1/2 pl-3 mb-6 md:mb-0">
 										<label
 											className="block tracking-wide text-gray-700 font-bold mb-2"
-											htmlFor="grid-zip"
+											htmlFor="zip"
 										>
 											Zip
 										</label>
 										<input
-											className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-											id="grid-zip"
+											className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+											id="zip"
 											type="text"
-											placeholder="ZIP Code"
+											// placeholder="ZIP Code"
+											defaultValue="95131"
+											{...register('zip', {
+												required: true,
+											})}
 										/>
+										{errors.zip?.type === 'required' && (
+											<p className="text-red-500 text-sm italic">ZIP is required!</p>
+										)}
 									</div>
 								</div>
+							</div>
+							<div className="flex self-center w-full pt-12">
+								<ButtonLogin
+									//func={() => openModal()}
+									type="submit"
+									name="Add"
+									color_500="#A855F7"
+									color_600="#9333EA"
+									color_700="#7E22CE"
+								/>
 							</div>
 						</form>
 					</div>
 
-					<div className="flex self-center w-52 pt-12">
-						<ButtonLogin
-							func={() => openModal()}
-							name="Add"
-							color_500="#A855F7"
-							color_600="#9333EA"
-							color_700="#7E22CE"
-						/>
-					</div>
-					<SuccessDialog message="Payment" isOpen={isOpen} closeModal={closeModal} />
+					<SuccessDialog message="Add new card" isOpen={isOpen} closeModal={closeModal} />
 				</div>
 			</div>
 		</main>

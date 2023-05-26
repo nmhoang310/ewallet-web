@@ -9,7 +9,7 @@ export default function ButtonLogin(props) {
         700: props.color_700,
       };
     
-    const CustomButton = styled(Button)`
+    const CustomButton = styled(Button)(`
       font-family:sans-serif;
       font-size: 1rem;
       font-weight: bold;
@@ -35,14 +35,14 @@ export default function ButtonLogin(props) {
         box-shadow: 0 4px 20px 0 rgba(61, 71, 82, 0.1), 0 0 0 5px rgba(0, 127, 255, 0.5);
         outline: none;
       }
-    `;
+    `);
     
     
 
 
   return (
     <CustomButton
-      startIcon={props.icon} style={{'backgroundColor': props.color_500}} onClick={props.func}>
+      startIcon={props.icon} style={{'backgroundColor': props.color_500}} onClick={props.func} type={props.type}>
         {props.name}
     </CustomButton>
   )
