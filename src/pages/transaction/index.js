@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { Inter } from 'next/font/google';
 import Datepicker from 'react-tailwindcss-datepicker';
 
@@ -6,7 +6,11 @@ import ButtonLogin from '@/components/ButtonLogin';
 
 const inter = Inter({ subsets: ['latin'] });
 
+import * as accountingService from '@/services/accounting-service';
+import Loader from '@/components/Loader';
+
 export default function Transaction() {
+	const [listTransaction, setListTransaction] = useState(null);
 	const [value, setValue] = useState({
 		startDate: new Date(),
 		endDate: new Date().setMonth(11),
@@ -15,8 +19,27 @@ export default function Transaction() {
 		console.log('newValue:', newValue);
 		setValue(newValue);
 	};
+	const [walletId, setWalletId] = useState("5rNeRRSrXD2rrC7ACtahv");
+	const [isLoading, setIsLoading] = useState(true);
+	useEffect(() => {
+		const fetchData = async () => {
+			const data = await accountingService.getListTransactionByWalletId(walletId);
+			setListTransaction(data);
+			setIsLoading(false)
+			console.log(data)
+		}
+
+		fetchData();
+	}, [walletId]);
+
+	const setLoading = () => {
+		if (!isLoading)
+			return false;
+	}
+
 	return (
 		<main className={`container z-0 w-full min-h-screen flex flex-col py-28 ${inter.className}`}>
+			{isLoading ? <Loader isOpen={isLoading} isClose={setLoading}/> : null}
 			<div className="w-full text-center font-bold text-2xl py-5 border-y-2 ">TRANSACTIONS</div>
 			<div className="flex flex-col py-4 px-12">
 				{/* filter */}
@@ -53,7 +76,7 @@ export default function Transaction() {
 
 				{/* table */}
 				<div className="overflow-x-auto shadow-md sm:rounded-lg">
-					<table className="w-full text-sm overflow-scroll text-left text-gray-500 dark:text-gray-400">
+					<table className="w-full text-sm overflow-scroll text-gray-500 dark:text-gray-400">
 						<thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 							<tr>
 								<th scope="col" className="px-6 py-3">
@@ -75,89 +98,32 @@ export default function Transaction() {
 									Amount
 								</th>
 								<th scope="col" className="px-6 py-3">
-									Fee
+									Process Fee
 								</th>
 								<th scope="col" className="px-6 py-3">
 									Transaction Date
 								</th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+						<tbody className='text-center'>
+							{listTransaction !== null ? listTransaction.map(transaction => (
+								<tr key= {transaction.transactionId}
+								className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
 								<th
 									scope="row"
 									className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
 								>
-									Apple MacBook Pro 17
+									{transaction.transactionId}
 								</th>
-								<td className="px-6 py-4">Silver</td>
-								<td className="px-6 py-4">Laptop</td>
-								<td className="px-6 py-4">$2999</td>
-								<td className="px-6 py-4">200</td>
-								<td className="px-6 py-4">100$</td>
-								<td className="px-6 py-4">$2999</td>
-								<td className="px-6 py-4">23/05/2023</td>
+								<td className="px-6 py-4">{transaction.category}</td>
+								<td className="px-6 py-4">{transaction.status}</td>
+								<td className="px-6 py-4">{transaction.beneficiary}</td>
+								<td className="px-6 py-4">{transaction.remitter}</td>
+								<td className="px-6 py-4">{transaction.amount}$</td>
+								<td className="px-6 py-4">{transaction.fee}$</td>
+								<td className="px-6 py-4">{transaction.transactionDate}</td>
 							</tr>
-							<tr className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-								<th
-									scope="row"
-									className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-								>
-									Microsoft Surface Pro
-								</th>
-								<td className="px-6 py-4">White</td>
-								<td className="px-6 py-4">Laptop PC</td>
-								<td className="px-6 py-4">$1999</td>
-								<td className="px-6 py-4">200</td>
-								<td className="px-6 py-4">100$</td>
-								<td className="px-6 py-4">$2999</td>
-								<td className="px-6 py-4">23/05/2023</td>
-							</tr>
-							<tr className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-								<th
-									scope="row"
-									className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-								>
-									Magic Mouse 2
-								</th>
-								<td className="px-6 py-4">Black</td>
-								<td className="px-6 py-4">Accessories</td>
-								<td className="px-6 py-4">$99</td>
-								<td className="px-6 py-4">200</td>
-								<td className="px-6 py-4">100$</td>
-								<td className="px-6 py-4">$2999</td>
-								<td className="px-6 py-4">23/05/2023</td>
-							</tr>
-							<tr className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-								<th
-									scope="row"
-									className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-								>
-									Google Pixel Phone
-								</th>
-								<td className="px-6 py-4">Gray</td>
-								<td className="px-6 py-4">Phone</td>
-								<td className="px-6 py-4">$799</td>
-								<td className="px-6 py-4">200</td>
-								<td className="px-6 py-4">100$</td>
-								<td className="px-6 py-4">$2999</td>
-								<td className="px-6 py-4">23/05/2023</td>
-							</tr>
-							<tr>
-								<th
-									scope="row"
-									className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-								>
-									Apple Watch 5
-								</th>
-								<td className="px-6 py-4">Red</td>
-								<td className="px-6 py-4">Wearables</td>
-								<td className="px-6 py-4">$999</td>
-								<td className="px-6 py-4">200</td>
-								<td className="px-6 py-4">100$</td>
-								<td className="px-6 py-4">$2999</td>
-								<td className="px-6 py-4">23/05/2023</td>
-							</tr>
+							)) : setLoading(true)}
 						</tbody>
 					</table>
 				</div>

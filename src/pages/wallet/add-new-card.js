@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 
@@ -9,6 +9,8 @@ import Link from 'next/link';
 import ButtonLogin from '@/components/ButtonLogin';
 import SuccessDialog from '@/components/SuccessDialog';
 
+import * as walletService from '@/services/wallet-service'; 
+
 const inter = Inter({ subsets: ['latin'] });
 
 export default function AddNewCard() {
@@ -17,11 +19,11 @@ export default function AddNewCard() {
 		firstName: null,
 		lastName: null,
 		cardNumber: null,
+		cardHolder: null,
 		expDate: null,
 		cvv: null,
-		cardName: null,
 		billingAddr: null,
-		zipCode: null
+		cardType: null,
 	});
 	const {
 		register,
@@ -42,18 +44,26 @@ export default function AddNewCard() {
 		delayError: undefined,
 	});
 
-	const onSubmit = (data) => {
-		setCard({
-			...card,
+	const onSubmit = async (data) => {
+		let type = "";
+		
+		if (data.cardNumber.charAt(0) === '4') type="Visa";
+		else if (cardNumber.charAt(0) === '2' || cardNumber.charAt(0) === '5')
+			type="Mastercard";
+		let payload={
+			firstName: "Pham",
+			lastName: "MinhCo",
+			userId: "0trWCURxKWQAuGh4YLKbmR6m07kRJ__rz-u2-ZcpCHDYfjelZWZ4aEZT-j9jDZeUwV00CpR5EcpU69XQIc2A7b5jjeKVoQ9nftgY_PCY3xgVd9MRqqumjNiF3-ituToCwdWRdGkXgX65OCmg1eZt8wccd9eME2050lAEiXd7mh5FftXQW6PtZ1hZAToQMlqo5iin4ONcgrhSX1kLh1",
 			cardNumber: data.cardNumber.replace(/\D/g, ''),
 			expDate: data.expDate,
 			cvv: data.cvv,
-			cardName: data.cardName,
-			billingAddr: data.street + ", " + data.state + ", " + data.city ,
-			zipCode: data.zip,
-		});
-		console.log(data)
-		console.log(card)
+			cardHolder: data.cardHolder,
+			cardType: type,
+			billingAddr: data.street + ', ' + data.state + ', ' + data.city + ' ' + data.zip
+		};
+		
+		let res = await walletService.addNewCard(payload);
+		console.log(res);
 		openModal();
 	};
 
@@ -256,24 +266,24 @@ export default function AddNewCard() {
 								<div className="w-full px-3">
 									<label
 										className="block tracking-wide text-gray-700 font-bold mb-2"
-										htmlFor="cardName"
+										htmlFor="cardHolder"
 									>
 										Name on Card
 									</label>
 									<input
 										className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-										id="cardName"
-										name="cardName"
+										id="cardHolder"
+										name="cardHolder"
 										type="text"
 										placeholder="Enter Name on Card"
-										{...register('cardName', {
+										{...register('cardHolder', {
 											required: true,
 											onChange: (value) => {
-												setValue('cardName', value.target.value.toUpperCase());
+												setValue('cardHolder', value.target.value.toUpperCase());
 											},
 										})}
 									/>
-									{errors.cardName?.type === 'required' && (
+									{errors.cardHolder?.type === 'required' && (
 										<p className="text-red-500 text-sm italic">Name is required!</p>
 									)}
 								</div>
@@ -294,7 +304,7 @@ export default function AddNewCard() {
 										<input
 											className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 											id="street"
-											name='street'
+											name="street"
 											type="text"
 											// placeholder="Street Address"
 											defaultValue="1 Main St"
@@ -318,7 +328,7 @@ export default function AddNewCard() {
 										<input
 											className="appearance-none block w-full bg-white text-gray-700 border border-gray-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 											id="city"
-											name='city'
+											name="city"
 											type="text"
 											// placeholder="City"
 											defaultValue="San Jose"
@@ -343,7 +353,7 @@ export default function AddNewCard() {
 											<select
 												className="block appearance-none w-full bg-white border border-gray-500 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
 												id="state"
-												name='state'
+												name="state"
 												{...register('state')}
 											>
 												<option>California</option>

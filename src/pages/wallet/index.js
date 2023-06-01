@@ -1,4 +1,4 @@
-import { useContext, useState, React, Fragment } from 'react';
+import { useContext, useState, React, Fragment, useEffect } from 'react';
 import Image from 'next/image';
 import { Inter } from 'next/font/google';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
@@ -11,10 +11,23 @@ import { Dialog, Transition } from '@headlessui/react';
 import Link from 'next/link';
 import CreditCard from '@/components/CreditCard';
 
+import * as walletService from '@/services/wallet-service'; 
+
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
 	const [isOpen, setIsOpen] = useState(false);
+	const [balance, setBalance] = useState(2.23);
+	const [userId, setUserId] = useState("0trWCURxKWQAuGh4YLKbmR6m07kRJ__rz-u2-ZcpCHDYfjelZWZ4aEZT-j9jDZeUwV00CpR5EcpU69XQIc2A7b5jjeKVoQ9nftgY_PCY3xgVd9MRqqumjNiF3-ituToCwdWRdGkXgX65OCmg1eZt8wccd9eME2050lAEiXd7mh5FftXQW6PtZ1hZAToQMlqo5iin4ONcgrhSX1kLh1");
+	
+	useEffect(() => {
+		const fetchData = async () => {
+			const data = await walletService.getBalance(userId);
+			setBalance(parseFloat(data).toFixed(2));
+		}
+
+		fetchData();
+	}, []);
 
 	function closeModal() {
 		setIsOpen(false);
@@ -24,13 +37,14 @@ export default function Home() {
 		setIsOpen(true);
 	}
 
+
 	return (
 		<main className={`container mx-auto min-h-screen py-28 px-36 ${inter.className}`}>
 			<div className="z-2 w-full px-15 font-mono text-sm grid grid-cols-3 gap-3 flex space-x-4">
-				<Link className="p-4 w-fit h-60" href="/wallet/details">
-					<Card />
+				<Link className="p-4 w-96 h-60" href="/wallet/details">
+					<Card balance={balance}/>
 				</Link>
-				<div className="p-4 w-fit h-60">
+				<div className="p-4 w-96 h-60">
 					<CreditCard />
 				</div>
 				<div className="p-4 h-60 w-fit">

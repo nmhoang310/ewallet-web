@@ -42,7 +42,7 @@ export default function ButtonLogin(props) {
 
   return (
     <CustomButton
-      startIcon={props.icon} style={{'backgroundColor': props.color_500}} onClick={props.func} type={props.type}>
+      startIcon={props.icon} style={{'backgroundColor': props.color_500}} onClick={props.func} type={props.type} form={props.form}>
         {props.name}
     </CustomButton>
   )

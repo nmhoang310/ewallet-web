@@ -1,11 +1,12 @@
 import { React, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
-export default function SuccessDialog(props) {
+export default function Loader(props) {
+	let circleCommonClasses = 'h-2.5 w-2.5 bg-current   rounded-full';
 	return (
 		<>
 			<Transition appear show={props.isOpen} as={Fragment}>
-				<Dialog as="div" className="relative z-10" onClose={props.closeModal}>
+				<Dialog as="div" className="relative z-10" onClose={props.isClose}>
 					<Transition.Child
 						as={Fragment}
 						enter="ease-out duration-300"
@@ -30,25 +31,14 @@ export default function SuccessDialog(props) {
 								leaveTo="opacity-0 scale-95"
 							>
 								<Dialog.Panel className="flex flex-col place-items-center w-fit max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-									<img className="h-16 w-16 mb-4" src="/check.png" alt="" />
-									{/* <Image
-										src="/check.png"
-										width={16}
-										height={16}
-										alt="Picture of the author"
-									/> */}
-									<Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-										{props.message} successful
-									</Dialog.Title>
-									<div className="mt-4">
-										<button
-											type="button"
-											className="inline-flex justify-center rounded-md border border-transparent bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-											onClick={props.closeModal}
-										>
-											OK
-										</button>
+									<div className="flex">
+										<div className={`${circleCommonClasses} mr-1 animate-bounce`}></div>
+										<div className={`${circleCommonClasses} mr-1 animate-bounce200`}></div>
+										<div className={`${circleCommonClasses} animate-bounce400`}></div>
 									</div>
+									{/* <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+										{props.message} successful
+									</Dialog.Title> */}
 								</Dialog.Panel>
 							</Transition.Child>
 						</div>
