@@ -5,9 +5,10 @@ const request = axios.create({
     baseURL: 'http://localhost:8081/api/v0',
     headers: {"content-type": "application/x-www-form-urlencoded",
     "Accept": "application/x-www-form-urlencoded",
-    "Access-Control-Allow-Origin" : "*",
-    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-    "Authorization" : process.env.IDTOKEN,}
+    // "Access-Control-Allow-Origin" : "*",
+    // "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+    // "Authorization" : process.env.TOKEN,
+}
 });
 
 //request.defaults.headers.common['Authorization'] = "AUTH_TOKEN";
@@ -24,8 +25,8 @@ export const get = async (path, options = {}) => {
 //     "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
 //   };
 
-export const post = async (path, body = {}) => {
-    const response = await request.post(path, body);
+export const post = async (path, body = {}, options = {}) => {
+    const response = await request.post(path, body, options);
     return response.data;
 }
 

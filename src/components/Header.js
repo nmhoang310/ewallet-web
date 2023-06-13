@@ -1,18 +1,11 @@
 import Link from 'next/link';
-import {  useState, React, Fragment } from 'react';
+import { useState, React, Fragment, useEffect } from 'react';
+import { useSession, signIn, getSession, signOut } from 'next-auth/react';
 
-import {
-	Bars3Icon,
-	ShoppingCartIcon,
-	MagnifyingGlassIcon,
-} from '@heroicons/react/24/outline';
-import {
-	ChevronDownIcon,
-	UserCircleIcon,
-} from '@heroicons/react/20/solid';
+import { Bars3Icon, ShoppingCartIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, UserCircleIcon } from '@heroicons/react/20/solid';
 import { Dialog, Menu, Transition } from '@headlessui/react';
 import LoginModal from './LoginModal';
-
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(' ');
@@ -21,13 +14,25 @@ function classNames(...classes) {
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
+	const { data: session } = useSession();
+	const [idToken, setIdToken] = useState();
+    const [logoutEnpoint, setLogoutEnpoint] = useState(`${process.env.WSO2IS_LOGOUT_ENPOINT}?id_token_hint=${idToken}&post_logout_redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL,)}`)
 
 	const items = [
 		{ name: 'Account', action: () => console.log('Account') },
 		{ name: 'Update Wallet PIN', action: () => console.log('Update Wallet PIN') },
 		{ name: 'Forgot Wallet PIN', action: () => console.log('Forgot Wallet PIN') },
 		{ name: 'Security', action: () => console.log('Security') },
-		{ name: 'Logout', action: () => openModal() },
+		// { name: 'Logout', action: () => signOut('wso2is', { callbackUrl: '/' }) },
+		// { name: 'Login', action: () => signIn('wso2is', { callbackUrl: '/wallet'})},
+	];
+
+	const itemsOfHeader = [
+		{ name: 'MARKETPLACE', link: '#' },
+		{ name: 'WALLET', link: '/wallet' },
+		{ name: 'MESSAGES', link: '#' },
+		{ name: 'TRANSACTIONS', link: '/transaction' },
+		{ name: 'ORDERS', link: '#' },
 	];
 
 	function closeModal() {
@@ -37,6 +42,13 @@ export default function Header() {
 	function openModal() {
 		setIsOpen(true);
 	}
+
+	useEffect(() => {
+		if (session) {
+			const  { accessToken, idToken } = session
+			setIdToken(idToken)
+		}
+	},[session]);
 
 	return (
 		<header className="container fixed top-0 bg-gradient-to-r z-50 from-purple-800 to-pink-600">
@@ -67,21 +79,15 @@ export default function Header() {
 				</div>
 
 				<div className="hidden lg:flex lg:gap-x-12">
-					<a href="#" className="text-sm font-semibold leading-6 text-white">
-						MARKETPLACE
-					</a>
-					<Link href="/wallet" className="text-sm font-semibold leading-6 text-white">
-						WALLET
-					</Link>
-					<a href="#" className="text-sm font-semibold leading-6 text-white">
-						MESSAGES
-					</a>
-					<Link href="/transaction" className="text-sm font-semibold leading-6 text-white">
-						TRANSACTIONS
-					</Link>
-					<a href="#" className="text-sm font-semibold leading-6 text-white">
-						ORDERS
-					</a>
+					{itemsOfHeader.map((item) => (
+						<Link
+							key={item.name}
+							href={item.link}
+							className="text-sm font-semibold leading-6 text-white"
+						>
+							{item.name}
+						</Link>
+					))}
 					<button
 						type="button"
 						className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
@@ -143,6 +149,32 @@ export default function Header() {
 											)}
 										</Menu.Item>
 									))}
+									<Menu.Item>
+										{({ active }) => (
+											!session ? (
+												<a
+													onClick={() => signIn('wso2is', { callbackUrl: '/' })}
+													className={classNames(
+														active ? 'bg-purple-700 text-white rounded-md' : 'text-gray-700',
+														'block px-4 py-2 text-sm'
+													)}
+												>
+													Login
+												</a>
+											) : (
+												<a
+												// 'wso2is', { callbackUrl: '/' }
+													onClick={() => signOut('wso2is', {callbackUrl: logoutEnpoint})}
+													className={classNames(
+														active ? 'bg-purple-700 text-white rounded-md' : 'text-gray-700',
+														'block px-4 py-2 text-sm'
+													)}
+												>
+													Logout
+												</a>
+											)
+										)}
+									</Menu.Item>
 								</div>
 							</div>
 						</Menu.Items>
@@ -150,7 +182,17 @@ export default function Header() {
 				</Menu>
 			</nav>
 			{/* Dialog */}
-			<LoginModal isOpen={isOpen} closeModal={closeModal}/>
+			<LoginModal isOpen={isOpen} closeModal={closeModal} />
 		</header>
 	);
+}
+
+export async function getServerSideProps(context) {
+	return {
+		props: {
+			session: await getServerSession(context),
+			tenant: process.env.WSO2IS_TENANT_NAME,
+			host: process.env.WSO2IS_HOST,
+		},
+	};
 }

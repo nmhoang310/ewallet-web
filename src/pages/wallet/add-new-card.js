@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 
@@ -11,9 +11,14 @@ import SuccessDialog from '@/components/SuccessDialog';
 
 import * as walletService from '@/services/wallet-service'; 
 
+import { useSession  } from 'next-auth/react';
+
+
 const inter = Inter({ subsets: ['latin'] });
 
 export default function AddNewCard() {
+	const { data: session, status } = useSession()
+	const [token, setToken] = useState();
 	let [cardNumber, setCardNumber] = useState('');
 	const [card, setCard] = useState({
 		firstName: null,
@@ -62,7 +67,7 @@ export default function AddNewCard() {
 			billingAddr: data.street + ', ' + data.state + ', ' + data.city + ' ' + data.zip
 		};
 		
-		let res = await walletService.addNewCard(payload);
+		let res = await walletService.addNewCard(payload, token);
 		console.log(res);
 		openModal();
 	};
@@ -91,6 +96,14 @@ export default function AddNewCard() {
 	function openModal() {
 		setIsOpen(true);
 	}
+
+	useEffect(() => {
+		if (session) {
+			const  { accessToken, idToken } = session
+			setToken(accessToken)
+		}
+	}, [session]);
+
 	return (
 		<main
 			className={`container mx-auto min-h-screen flex flex-row justify-center py-24 px-36 ${inter.className}`}

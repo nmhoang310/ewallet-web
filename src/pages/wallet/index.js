@@ -11,6 +11,8 @@ import { Dialog, Transition } from '@headlessui/react';
 import Link from 'next/link';
 import CreditCard from '@/components/CreditCard';
 
+import { useSession  } from 'next-auth/react';
+
 import * as walletService from '@/services/wallet-service'; 
 
 const inter = Inter({ subsets: ['latin'] });
@@ -19,15 +21,19 @@ export default function Home() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [balance, setBalance] = useState(2.23);
 	const [userId, setUserId] = useState("0trWCURxKWQAuGh4YLKbmR6m07kRJ__rz-u2-ZcpCHDYfjelZWZ4aEZT-j9jDZeUwV00CpR5EcpU69XQIc2A7b5jjeKVoQ9nftgY_PCY3xgVd9MRqqumjNiF3-ituToCwdWRdGkXgX65OCmg1eZt8wccd9eME2050lAEiXd7mh5FftXQW6PtZ1hZAToQMlqo5iin4ONcgrhSX1kLh1");
-	
+	const { data: session, status } = useSession()
 	useEffect(() => {
-		const fetchData = async () => {
-			const data = await walletService.getBalance(userId);
+		// const { accessToken, idToken } = session
+		const fetchData = async (token) => {
+			const data = await walletService.getBalance(userId, token);
 			setBalance(parseFloat(data).toFixed(2));
 		}
 
-		fetchData();
-	}, []);
+		if (session) {
+			const  { accessToken, idToken } = session
+			fetchData(accessToken);
+		}
+	}, [userId, session]);
 
 	function closeModal() {
 		setIsOpen(false);
@@ -37,6 +43,13 @@ export default function Home() {
 		setIsOpen(true);
 	}
 
+	// if (status === "loading") {
+	// 	return <p>Loading...</p>
+	// }
+
+	// if (status === "unauthenticated") {
+	// 	return signIn('wso2is', { callbackUrl: '/' })
+	// }
 
 	return (
 		<main className={`container mx-auto min-h-screen py-28 px-36 ${inter.className}`}>
@@ -65,3 +78,4 @@ export default function Home() {
 		</main>
 	);
 }
+
